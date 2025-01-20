@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Proposal {
+  id          String   @id @default(uuid())
+  description String
+  options     String[]
+  updated_at  DateTime @default(now())
+  created_at  DateTime @default(now())
+  votes       Vote[]
+
+  AggregateVote AggregateVote?
+
+  @@map("proposals")
+}
+
+model Vote {
+  id          String   @id @default(uuid())
+  proposal_id String
+  wallet      String
+  signature   String
+  vote_option String
+  num_votes   Int
+  chainId     Int
+  updated_at  DateTime @default(now())
+  created_at  DateTime @default(now())
+  proposal    Proposal @relation(fields: [proposal_id], references: [id])
+
+  @@unique([proposal_id, wallet])
+  @@map("votes")
+}
+
+model AggregateVote {
+  id              String   @id @default(uuid())
+  proposal_id     String   @unique
+  total_votes     Json
+  last_updated_at DateTime
+  updated_at      DateTime @default(now())
+  created_at      DateTime @default(now())
+
+  proposal Proposal @relation(fields: [proposal_id], references: [id])
+
+  @@map("aggregate_votes")
+}
