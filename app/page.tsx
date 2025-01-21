@@ -209,6 +209,16 @@ export default function Home() {
       })
     }
   };
+  const handleShareTwitter = () => {
+    if (!userVote) {
+      return;
+    }
+
+    const tweetText = `I voted ${userVote} for Danny Ryan as the sole Executive Director of the Ethereum Foundation.\n\nhttps://www.votedannyryan.com/`;
+    const encodedTweet = encodeURIComponent(tweetText);
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodedTweet}`;
+    window.open(twitterUrl, '_blank', 'noopener,noreferrer');
+  };
 
   return (
     <div className="min-h-screen p-3 pt-3">
@@ -272,7 +282,7 @@ export default function Home() {
               You voted <span className={userVote === "YES" ? "text-green-500" : "text-red-500"}>{userVote}</span> with {parseFloat(userNumVotes ?? "0").toFixed(5)} ETH
             </h3>
             <Button
-              onClick={() => window.open("https://twitter.com/intent/tweet")}
+              onClick={handleShareTwitter}
               className="bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white"
             >
               <Share2 className="mr-2" /> Share on Twitter
@@ -408,7 +418,7 @@ export default function Home() {
               You voted <span className={userVote === "YES" ? "text-green-500" : "text-red-500"}>{userVote}</span> for Danny Ryan as Executive Director!
             </h3>
             <Button
-              onClick={() => window.open("https://twitter.com/intent/tweet")}
+              onClick={handleShareTwitter}
               className="bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white"
             >
               <Share2 className="mr-2" /> Share on Twitter
