@@ -13,7 +13,7 @@ import { useAccount } from "wagmi";
 import { Github, Twitter, ThumbsUp, ThumbsDown, Share2, Feather as Ethereum, Wallet } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatEther, parseEther } from "viem";
-import { timeAgo } from "@/lib/utils";
+import { timeAgo, truncateAddress } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useSignMessage } from "wagmi";
 import { useAppKit } from "@reown/appkit/react";
@@ -225,32 +225,13 @@ export default function Home() {
       <div className="max-w-4xl mx-auto flex justify-end pb-3">
         <appkit-button />
       </div>
-      {/* <div className="max-w-4xl mx-auto p-6"> */}
-      {/*   {isConnected ? ( */}
-      {/*     <Button */}
-      {/*       onClick={() => disconnect()} */}
-      {/*       className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-full px-6 py-2 shadow-lg transition-all duration-300 border border-blue-300/20 backdrop-blur-sm" */}
-      {/*     > */}
-      {/*       <Wallet className="mr-2 h-4 w-4" /> */}
-      {/*       {address?.slice(0, 6)}...{address?.slice(-4)} */}
-      {/*     </Button> */}
-      {/*   ) : ( */}
-      {/*     <Button */}
-      {/*       onClick={() => connect({ connector: injected() })} */}
-      {/*       className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-full px-6 py-2 shadow-lg transition-all duration-300 border border-blue-300/20 backdrop-blur-sm" */}
-      {/*     > */}
-      {/*       <Wallet className="mr-2 h-4 w-4" /> */}
-      {/*       Connect Wallet */}
-      {/*     </Button> */}
-      {/*   )} */}
-      {/* </div> */}
 
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-8 backdrop-blur-sm border border-blue-100">
         <h1 className="text-2xl font-bold text-center mb-8 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
           Danny Ryan as the sole Executive Director of the Ethereum Foundation
         </h1>
 
-        <div className="bg-blue-50 rounded-lg p-6 mb-8 border border-blue-100">
+        <div className="bg-blue-50 rounded-lg p-6 mb-8 border border-blue-100 hidden sm:block">
           <blockquote className="text-md text-center italic text-gray-700">
             Ethereum&apos;s infancy is long past, and its adolescence, too, is now in the rear-view mirror. As a young adult, the world is riddled with complexity, false prophets, complex incentives, dead-ends, and other dangers. Everyone&apos;s true-north of what Ethereum should be and where it all should go is a bit different, but in aggregate, each decision that you make sums with all others to direct Ethereum through this critical time. Stay true to the good. Do your part in keeping Ethereum on the serendipitous path that has been cultivated since its genesis.
           </blockquote>
@@ -310,25 +291,49 @@ export default function Home() {
         )}
 
         <div className="bg-blue-50 rounded-lg p-6 border border-blue-100">
-          <h2 className="text-xl font-semibold mb-4">Recent Votes <span className="text-sm pl=2 text-gray-600">(Total: {totalVotes})</span></h2>
+          <h2 className="text-xl font-semibold mb-4">
+            Recent Votes{' '}
+            <span className="text-sm pl-2 text-gray-600">(Total: {totalVotes})</span>
+          </h2>
           <div className="space-y-4">
             {recentVotes.map((vote, index) => (
-              <div key={index} className="flex items-center justify-between bg-white p-4 rounded-lg border border-blue-50 hover:border-blue-200 transition-colors duration-200">
-                <div className="flex items-center">
+              <div
+                key={index}
+                className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white p-4 rounded-lg border border-blue-50 hover:border-blue-200 transition-colors duration-200"
+              >
+                {/* Wallet Address Section */}
+                <div className="flex items-center mb-2 sm:mb-0">
                   <Ethereum className="mr-2 text-blue-500" />
-                  <span className="font-mono">{vote.wallet}</span>
+                  {/* Truncate address on small screens */}
+                  <span className="font-mono text-sm sm:text-base">
+                    <span className="block sm:hidden">
+                      {truncateAddress(vote.wallet, 4)}
+                    </span>
+                    <span className="hidden sm:block">{vote.wallet}</span>
+                  </span>
                 </div>
-                <div className="flex items-center gap-4">
-                  <span className={vote.vote_option === "YES" ? "text-green-500" : "text-red-500"}>
+
+                {/* Vote and ETH Section */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+                  <span
+                    className={`text-sm sm:text-base font-medium ${vote.vote_option === 'YES' ? 'text-green-500' : 'text-red-500'
+                      }`}
+                  >
                     {vote.vote_option}
                   </span>
-                  <span className="text-gray-600">{parseFloat(vote.num_votes).toFixed(4)} ETH</span>
-                  <span className="text-gray-400 text-sm">{timeAgo(vote.created_at)}</span>
+                  <span className="text-gray-600 text-sm sm:text-base">
+                    {parseFloat(vote.num_votes.toString()).toFixed(4)} ETH
+                  </span>
+                  <span className="text-gray-400 text-xs sm:text-sm hidden sm:block">
+                    {timeAgo(vote.created_at)}
+                  </span>
                 </div>
               </div>
             ))}
           </div>
         </div>
+        );
+
 
         <div className="mt-8">
           <h2 className="text-2xl font-semibold mb-6 text-center">Frequently Asked Questions</h2>
@@ -346,7 +351,7 @@ export default function Home() {
                 How is my vote weighted?
               </AccordionTrigger>
               <AccordionContent>
-                Votes are weighted based on the amount of ETH in your connected wallet at the time of voting. The following blockchains are supported: Ethereum, Base, Optimism, Arbitrum, zkSync, Linea. This ensures that stakeholders with greater investments in the Ethereum ecosystem have a proportional influence on the outcome.
+                Votes are weighted based on the amount of ETH and ETH derivates in your connected wallet at the time of voting. The following blockchains are supported: $ETH (Ethereum, Base, Optimism, Arbitrum, zkSync, Linea), WETH (L1), rETH (L1), stETH (L1). This ensures that stakeholders with greater investments in the Ethereum ecosystem have a proportional influence on the outcome.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-3">

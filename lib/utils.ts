@@ -37,3 +37,8 @@ export function timeAgo(dateString: string): string {
   const years = Math.floor(days / 365);
   return `${years} years ago`;
 }
+
+export const truncateAddress = (address: string, chars: number = 6): string => {
+  if (address.length <= chars * 2 + 2) return address;
+  return `${address.substring(0, chars)}...${address.substring(address.length - chars)}`;
+};
