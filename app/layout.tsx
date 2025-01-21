@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 
 export const metadata: Metadata = {
-  title: 'EF Executive Director Vote',
+  title: 'Vote Danny Ryan',
   description: 'Vote for Danny Ryan as Executive Director of the Ethereum Foundation',
 };
 
