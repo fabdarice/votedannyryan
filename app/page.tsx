@@ -8,9 +8,16 @@ import { Github, Twitter, ThumbsUp, ThumbsDown, Share2, Feather as Ethereum, Wal
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { injected } from "wagmi/connectors";
 import { formatEther, parseEther } from "viem";
-import { truncateToTwoDecimals } from "@/lib/utils";
+import { timeAgo } from "@/lib/utils";
 
 require('dotenv').config();
+
+interface Vote {
+  wallet: string;
+  vote_option: string;
+  num_votes: string;
+  created_at: string;
+}
 
 export default function Home() {
   const [showVoteDialog, setShowVoteDialog] = useState(false);
@@ -29,11 +36,8 @@ export default function Home() {
     noPercentage: 0,
   });
 
-  const recentVotes = [
-    { address: "0x1234...5678", vote: "YES", amount: "5.5 ETH", timestamp: "2 mins ago" },
-    { address: "0x8765...4321", vote: "NO", amount: "2.1 ETH", timestamp: "5 mins ago" },
-    // Add more mock votes...
-  ];
+  const [recentVotes, setRecentVotes] = useState<Vote[]>([]);
+  const [totalVotes, setTotalVotes] = useState(0);
 
   useEffect(() => {
     const fetchUserVote = async () => {
@@ -73,8 +77,8 @@ export default function Home() {
         const aggregate = await response.json();
         const yesVotesBig = parseEther(aggregate.total_votes.YES || "0");
         const noVotesBig = parseEther(aggregate.total_votes.NO || "0");
-        const yesVotes = parseFloat(formatEther(yesVotesBig)); // Number
-        const noVotes = parseFloat(formatEther(noVotesBig));   // Number
+        const yesVotes = parseFloat(formatEther(yesVotesBig));
+        const noVotes = parseFloat(formatEther(noVotesBig));
         const totalVotes = yesVotes + noVotes
         const yesPercentage = totalVotes === 0 ? 0 : (yesVotes / totalVotes) * 100;
         const noPercentage = totalVotes === 0 ? 0 : 100 - yesPercentage;
@@ -96,6 +100,28 @@ export default function Home() {
   }, [userVote]);
 
 
+  useEffect(() => {
+    const fetchRecentVotes = async () => {
+      try {
+        const proposalId = process.env.NEXT_PUBLIC_PROPOSAL_ID
+        const response = await fetch(`/api/votes/${proposalId}`);
+
+        if (!response.ok) {
+          console.error("Failed to fetch vote data:", response.statusText);
+          return;
+        }
+
+        const data = await response.json();
+        setTotalVotes(data.totalVotes);
+        setRecentVotes(data.votes);
+
+      } catch (error) {
+        console.error("Error fetching vote data:", error);
+      }
+    };
+
+    fetchRecentVotes();
+  }, [userVote]);
 
   const handleVote = async (vote: "YES" | "NO") => {
     if (!isConnected) {
@@ -184,7 +210,7 @@ export default function Home() {
         <div className="mb-8">
           <div className="flex justify-between mb-2">
             <span className="font-semibold">Vote Distribution</span>
-            <span className="text-gray-600 font-semibold">{voteData.totalVotes.toFixed(2)} ETH Total votes</span>
+            <span className="text-gray-600 font-semibold">{voteData.totalVotes.toFixed(2)} ETH Total</span>
           </div>
           <Progress
             value={voteData.yesPercentage}
@@ -203,7 +229,7 @@ export default function Home() {
         {userVote ? (
           <div className="rounded-lg text-center gap-4 pb-6">
             <h3 className="text-xl mb-4 text-gray-600">
-              You voted <span className={userVote === "YES" ? "text-green-500" : "text-red-500"}>{userVote}</span> with {userNumVotes} ETH
+              You voted <span className={userVote === "YES" ? "text-green-500" : "text-red-500"}>{userVote}</span> with {parseFloat(userNumVotes ?? "0").toFixed(5)} ETH
             </h3>
             <Button
               onClick={() => window.open("https://twitter.com/intent/tweet")}
@@ -231,20 +257,20 @@ export default function Home() {
           </div>)}
 
         <div className="bg-blue-50 rounded-lg p-6 border border-blue-100">
-          <h2 className="text-xl font-semibold mb-4">Recent Votes</h2>
+          <h2 className="text-xl font-semibold mb-4">Recent Votes <span className="text-sm pl=2 text-gray-600">(Total: {totalVotes})</span></h2>
           <div className="space-y-4">
             {recentVotes.map((vote, index) => (
               <div key={index} className="flex items-center justify-between bg-white p-4 rounded-lg border border-blue-50 hover:border-blue-200 transition-colors duration-200">
                 <div className="flex items-center">
                   <Ethereum className="mr-2 text-blue-500" />
-                  <span className="font-mono">{vote.address}</span>
+                  <span className="font-mono">{vote.wallet}</span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className={vote.vote === "YES" ? "text-green-500" : "text-red-500"}>
-                    {vote.vote}
+                  <span className={vote.vote_option === "YES" ? "text-green-500" : "text-red-500"}>
+                    {vote.vote_option}
                   </span>
-                  <span className="text-gray-600">{vote.amount}</span>
-                  <span className="text-gray-400 text-sm">{vote.timestamp}</span>
+                  <span className="text-gray-600">{parseFloat(vote.num_votes).toFixed(4)} ETH</span>
+                  <span className="text-gray-400 text-sm">{timeAgo(vote.created_at)}</span>
                 </div>
               </div>
             ))}

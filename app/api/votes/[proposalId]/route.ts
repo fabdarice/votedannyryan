@@ -1,7 +1,7 @@
 import { prisma } from "@/prisma/prisma";
 import { NextResponse } from "next/server";
 
-// app/api/recent-votes/[proposalId]/route.ts
+// app/api/votes/[proposalId]/route.ts
 export async function GET(
   request: Request,
   { params: { proposalId } }: { params: { proposalId: string } }
@@ -15,7 +15,6 @@ export async function GET(
         wallet: true,
         vote_option: true,
         num_votes: true,
-        chainId: true,
         created_at: true,
       },
       orderBy: {
