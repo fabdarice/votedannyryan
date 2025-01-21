@@ -75,12 +75,12 @@ export async function POST(request: Request) {
       `;
 
       // d) Calculate the new totals
-      const newTotalVotes: Record<string, string> = {
+      const newTotalVotes = {
         // eslint-disable-next-line
-        ...currentAggregate.total_votes,
+        ...(currentAggregate.total_votes as Record<string, string>),
         [voteOption]:
           // eslint-disable-next-line
-          formatEther(parseEther(currentAggregate.total_votes[voteOption] || "0") + num_votes),
+          formatEther(parseEther((currentAggregate.total_votes as Record<string, string>)[voteOption] || "0") + num_votes),
       };
 
       // e) Update the row now that it's locked
