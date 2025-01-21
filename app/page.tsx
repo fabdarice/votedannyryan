@@ -323,7 +323,7 @@ export default function Home() {
                 What is the purpose of this vote?
               </AccordionTrigger>
               <AccordionContent>
-                This vote is to determine whether Danny Ryan should become the sole Executive Director of the Ethereum Foundation. The community's input through this voting process will help guide this important decision.
+                This vote is designed to showcase the Ethereum community’s support (or lack thereof) for whether Danny Ryan should become the sole Executive Director of the Ethereum Foundation.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-2">
@@ -331,15 +331,34 @@ export default function Home() {
                 How is my vote weighted?
               </AccordionTrigger>
               <AccordionContent>
-                Votes are weighted based on the amount of ETH in your connected wallet at the time of voting. This ensures that stakeholders with more investment in the Ethereum ecosystem have proportional influence.
+                Votes are weighted based on the amount of ETH in your connected wallet at the time of voting. The following blockchains are supported: Ethereum, Base, Optimism, Arbitrum, zkSync, Polygon, Linea, and PolygonSL. This ensures that stakeholders with greater investments in the Ethereum ecosystem have a proportional influence on the outcome.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-3">
               <AccordionTrigger className="text-left">
-                Can I change my vote later?
+                Is it safe to vote?
               </AccordionTrigger>
               <AccordionContent>
-                No, votes are final and cannot be changed once submitted. Please carefully consider your decision before voting. Each wallet address can only vote once.
+                Yes, voting is safe. The code is public and available&nbsp;
+                <a
+                  href="https://github.com/fabdarice/votedannyryan"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:text-blue-600 transition-colors"
+                >
+                  here</a>.<br />
+                It only requires a wallet signature with the following text:
+                `I vote YES|NO for "Danny Ryan as the sole Executive Director of the Ethereum Foundation".
+                Signing this transaction is free and will not cost you any gas.`
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-3">
+              <AccordionTrigger className="text-left">
+
+                Do I need to pay any gas to vote?
+              </AccordionTrigger>
+              <AccordionContent>
+                No, voting is completely free and does not require sending any transaction on-chain.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
