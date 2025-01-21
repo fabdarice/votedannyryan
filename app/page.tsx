@@ -9,16 +9,15 @@ import {
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { useAccount } from "wagmi";
 import { Github, Twitter, ThumbsUp, ThumbsDown, Share2, Feather as Ethereum, Wallet } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { injected } from "wagmi/connectors";
 import { formatEther, parseEther } from "viem";
 import { timeAgo } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useSignMessage } from "wagmi";
+import { useAppKit } from "@reown/appkit/react";
 
-require('dotenv').config();
 
 interface Vote {
   wallet: string;
@@ -33,10 +32,9 @@ export default function Home() {
   const [userNumVotes, setUserNumVotes] = useState(null);
 
   const { address, isConnected } = useAccount();
-  const { connect } = useConnect();
-  const { disconnect } = useDisconnect();
   const { toast } = useToast();
   const { signMessageAsync } = useSignMessage();
+  const { open } = useAppKit();
 
 
 
@@ -161,7 +159,7 @@ export default function Home() {
 
   const handleVote = async (vote: "YES" | "NO") => {
     if (!isConnected) {
-      connect({ connector: injected() });
+      open();
       return;
     }
 
@@ -213,8 +211,8 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen p-8 pt-16">
-      <div className="max-w-4xl mx-auto p-6">
+    <div className="min-h-screen p-3 pt-3">
+      <div className="max-w-4xl mx-auto flex justify-end pb-3">
         <appkit-button />
       </div>
       {/* <div className="max-w-4xl mx-auto p-6"> */}
