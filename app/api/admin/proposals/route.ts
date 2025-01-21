@@ -18,9 +18,11 @@ export async function POST(request: Request) {
         options,
       },
     });
-
     return NextResponse.json(proposal);
   } catch (error) {
+
+
+    console.error('Error seeeding proposal: ', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

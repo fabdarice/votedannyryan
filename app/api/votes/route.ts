@@ -14,6 +14,7 @@ export async function POST(request: Request) {
       where: { id: proposalId },
     });
     if (!proposal) {
+      console.error('Proposal not found', proposalId);
       return NextResponse.json({ error: 'Proposal not found' }, { status: 404 });
     }
 
@@ -24,6 +25,7 @@ export async function POST(request: Request) {
       },
     });
     if (existingVote) {
+      console.error('Already voted');
       return NextResponse.json({ error: 'Already voted' }, { status: 400 });
     }
 
@@ -32,6 +34,7 @@ export async function POST(request: Request) {
     const isValidSignature = await verifySignature(message, signature, wallet);
 
     if (!isValidSignature) {
+      console.error('Invalid Signature');
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
 

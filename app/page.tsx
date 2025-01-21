@@ -279,22 +279,25 @@ export default function Home() {
             </Button>
           </div>
         ) : (
-          <div className="flex gap-4 justify-center mb-12">
+          <div className="flex gap-6 justify-center mb-12">
             <Button
               onClick={() => handleVote("YES")}
-              className="relative overflow-hidden group bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 text-white px-8 py-6 text-lg rounded-xl shadow-lg transition-all duration-300 border border-green-400/20"
+              className="group relative flex items-center overflow-hidden bg-white hover:bg-gray-50 text-gray-800 px-10 py-6 text-lg rounded-2xl shadow-lg transition-all duration-300 border-2 border-gray-200 hover:border-gray-300"
             >
-              <div className="absolute inset-0 bg-white/20 transform -skew-x-12 translate-x-full group-hover:translate-x-0 transition-transform duration-300" />
-              <ThumbsUp className="mr-2" /> Vote YES
+              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-gray-100/20 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
+              <ThumbsUp className="mr-3 h-5 w-5" />
+              <span className="font-medium tracking-wide">Vote YES</span>
             </Button>
             <Button
               onClick={() => handleVote("NO")}
-              className="relative overflow-hidden group bg-gradient-to-r from-red-400 to-red-500 hover:from-red-500 hover:to-red-600 text-white px-8 py-6 text-lg rounded-xl shadow-lg transition-all duration-300 border border-red-400/20"
+              className="group relative flex items-center overflow-hidden bg-white hover:bg-gray-50 text-gray-800 px-10 py-6 text-lg rounded-2xl shadow-lg transition-all duration-300 border-2 border-gray-200 hover:border-gray-300"
             >
-              <div className="absolute inset-0 bg-white/20 transform -skew-x-12 translate-x-full group-hover:translate-x-0 transition-transform duration-300" />
-              <ThumbsDown className="mr-2" /> Vote NO
+              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-gray-100/20 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
+              <ThumbsDown className="mr-3 h-5 w-5" />
+              <span className="font-medium tracking-wide">Vote NO</span>
             </Button>
-          </div>)}
+          </div>
+        )}
 
         <div className="bg-blue-50 rounded-lg p-6 border border-blue-100">
           <h2 className="text-xl font-semibold mb-4">Recent Votes <span className="text-sm pl=2 text-gray-600">(Total: {totalVotes})</span></h2>

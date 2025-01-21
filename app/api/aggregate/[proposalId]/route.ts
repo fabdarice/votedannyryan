@@ -12,11 +12,13 @@ export async function GET(
     });
 
     if (!aggregate) {
+      console.warn('No aggregated votes found');
       return NextResponse.json({ error: 'No votes found' }, { status: 404 });
     }
 
     return NextResponse.json(aggregate);
   } catch (error) {
+    console.error('Could not fetch aggregated votes: ', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

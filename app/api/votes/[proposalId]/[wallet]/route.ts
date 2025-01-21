@@ -19,6 +19,7 @@ export async function GET(
 
     return NextResponse.json({ voteOption: vote?.vote_option, numVotes: vote?.num_votes });
   } catch (error) {
+    console.error('Could not fetch vote: ', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
