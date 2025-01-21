@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { Github, Twitter, Bug, ThumbsUp, ThumbsDown, Share2, Feather as Ethereum, Wallet } from "lucide-react";
+import { Github, Twitter, ThumbsUp, ThumbsDown, Share2, Feather as Ethereum, Wallet } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { injected } from "wagmi/connectors";
+
+require('dotenv').config();
 
 export default function Home() {
   const [showVoteDialog, setShowVoteDialog] = useState(false);
@@ -16,11 +18,13 @@ export default function Home() {
   const { connect } = useConnect();
   const { disconnect } = useDisconnect();
 
-  // Mock data - replace with actual blockchain data
-  const yesVotes = 1500;
-  const noVotes = 500;
-  const totalVotes = yesVotes + noVotes;
-  const yesPercentage = (yesVotes / totalVotes) * 100;
+  const [voteData, setVoteData] = useState({
+    yesVotes: 0,
+    noVotes: 0,
+    totalVotes: 0,
+    yesPercentage: 0,
+    noPercentage: 0,
+  });
 
   const recentVotes = [
     { address: "0x1234...5678", vote: "YES", amount: "5.5 ETH", timestamp: "2 mins ago" },
@@ -28,14 +32,92 @@ export default function Home() {
     // Add more mock votes...
   ];
 
-  const handleVote = (type: "YES" | "NO") => {
+  useEffect(() => {
+    const fetchVoteData = async () => {
+      try {
+        const proposalId = "your_proposal_id"; // Replace with actual proposal ID
+        const response = await fetch(`/api/aggregate/${proposalId}`);
+
+        if (!response.ok) {
+          console.error("Failed to fetch vote data:", response.statusText);
+          return;
+        }
+
+        const aggregate = await response.json();
+
+        // Process vote distribution
+        const yesVotes = aggregate.total_votes.YES || 0;
+        const noVotes = aggregate.total_votes.NO || 0;
+        const totalVotes = yesVotes + noVotes;
+        const yesPercentage = (yesVotes / totalVotes) * 100 || 0;
+        const noPercentage = 100 - yesPercentage;
+
+        setVoteData({
+          yesVotes,
+          noVotes,
+          totalVotes,
+          yesPercentage,
+          noPercentage,
+        });
+
+      } catch (error) {
+        console.error("Error fetching vote data:", error);
+      }
+    };
+
+    fetchVoteData();
+  }, []);
+
+  const handleVote = async (vote: "YES" | "NO") => {
     if (!isConnected) {
       connect({ connector: injected() });
       return;
     }
-    setVoteType(type);
-    setShowVoteDialog(true);
-    // Implement actual voting logic here
+
+    try {
+      const proposalId = process.env.PROPOSAL_ID;
+      const voteMessage = `I vote ${vote} for "Danny Ryan as the sole Executive Director of the Ethereum Foundation".\n\nSigning this transaction is free and will not cost you any gas.`;
+
+      // Sign the message using the wallet
+      const signature = await window.ethereum.request({
+        method: "personal_sign",
+        params: [voteMessage, address],
+      });
+
+      // Prepare the vote payload
+      const votePayload = {
+        proposalId,
+        signature,
+        wallet: address,
+        voteOption: vote,
+      };
+
+      console.log({ votePayload });
+
+      // Call the API to submit the vote
+      const response = await fetch(`/api/votes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(votePayload),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error("Vote failed:", result.error);
+        alert(`Vote failed: ${result.error}`);
+        return;
+      }
+
+      console.log("Vote successful:", result);
+      setVoteType(vote);
+      setShowVoteDialog(true);
+    } catch (error) {
+      console.error("Error handling vote:", error);
+      alert("An error occurred while voting. Please try again.");
+    }
   };
 
   return (
@@ -75,19 +157,19 @@ export default function Home() {
         <div className="mb-8">
           <div className="flex justify-between mb-2">
             <span className="font-semibold">Vote Distribution</span>
-            <span className="text-gray-600">{totalVotes} ETH Total</span>
+            <span className="text-gray-600">{voteData.totalVotes} ETH Total</span>
           </div>
           <Progress
-            value={yesPercentage}
+            value={voteData.yesPercentage}
             className="h-6 mb-2 rounded-full overflow-hidden"
-            indicatorStyles={`transition-all duration-500 ${yesPercentage > 50
+            indicatorStyles={`transition-all duration-500 ${voteData.yesPercentage > 50
               ? 'bg-gradient-to-r from-green-400 to-green-500'
               : 'bg-gradient-to-r from-red-400 to-red-500'
               }`}
           />
           <div className="flex justify-between text-sm">
-            <span>Yes: {yesVotes} ETH ({yesPercentage.toFixed(1)}%)</span>
-            <span>No: {noVotes} ETH ({(100 - yesPercentage).toFixed(1)}%)</span>
+            <span>Yes: {voteData.yesVotes} ETH ({voteData.yesPercentage.toFixed(1)}%)</span>
+            <span>No: {voteData.noVotes} ETH ({(100 - voteData.yesPercentage).toFixed(1)}%)</span>
           </div>
         </div>
 

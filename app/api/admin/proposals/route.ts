@@ -1,13 +1,10 @@
-
-// app/api/admin/proposal/route.ts
+export const dynamic = 'force-dynamic';
 import { prisma } from '@/prisma/prisma';
-import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
-    const headersList = headers();
-    const adminKey = headersList.get('x-admin-key');
+    const adminKey = request.headers.get('x-admin-key')
 
     if (adminKey !== process.env.ADMIN_SECRET_KEY) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

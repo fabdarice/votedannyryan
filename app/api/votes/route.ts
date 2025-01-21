@@ -6,10 +6,11 @@ const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
   try {
-    const { proposalId, signature, wallet, vote_option, chainId, num_votes } =
-      await request.json();
+    const { proposalId, signature, wallet, voteOption } = await request.json();
 
-    // 1) Basic checks
+    // TODO: Get Number of votes across blockchains
+    const num_votes = 1;
+
     const proposal = await prisma.proposal.findUnique({
       where: { id: proposalId },
     });
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
     }
 
     // 2) Verify signature
-    const message = `I vote ${vote_option} for: ${proposal.description}`;
+    const message = `I vote ${voteOption} for "${proposal.description}"\n\nSigning this transaction is free and will not cost you any gas.`;
     const isValidSignature = await verifySignature(message, signature, wallet);
 
     if (!isValidSignature) {
@@ -36,16 +37,16 @@ export async function POST(request: Request) {
     }
 
     // 3) Use transaction WITH row-level locking
-    const result = await prisma.$transaction(async (tx: PrismaClient) => {
+    const result = await prisma.$transaction(async (tx) => {
       // a) Create the vote record
       const vote = await tx.vote.create({
         data: {
           proposal_id: proposalId,
           wallet,
           signature,
-          vote_option,
-          chainId,
-          num_votes,
+          vote_option: voteOption,
+          chainId: 1,
+          num_votes: num_votes,
         },
       });
 
@@ -74,8 +75,8 @@ export async function POST(request: Request) {
       // d) Calculate the new totals
       const newTotalVotes = {
         ...currentAggregate.total_votes,
-        [vote_option]:
-          (currentAggregate.total_votes[vote_option] || 0) + num_votes,
+        [voteOption]:
+          (currentAggregate.total_votes[voteOption] || 0) + num_votes,
       };
 
       // e) Update the row now that it's locked
