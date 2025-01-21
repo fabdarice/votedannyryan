@@ -16,6 +16,7 @@ import { injected } from "wagmi/connectors";
 import { formatEther, parseEther } from "viem";
 import { timeAgo } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { useSignMessage } from "wagmi";
 
 require('dotenv').config();
 
@@ -35,6 +36,8 @@ export default function Home() {
   const { connect } = useConnect();
   const { disconnect } = useDisconnect();
   const { toast } = useToast();
+  const { signMessageAsync } = useSignMessage();
+
 
 
   const [voteData, setVoteData] = useState({
@@ -166,10 +169,8 @@ export default function Home() {
       const proposalId = process.env.NEXT_PUBLIC_PROPOSAL_ID;
       const voteMessage = `I vote ${vote} for "Danny Ryan as the sole Executive Director of the Ethereum Foundation".\n\nSigning this transaction is free and will not cost you any gas.`;
 
-      // Sign the message using the wallet
-      const signature = await window.ethereum.request({
-        method: "personal_sign",
-        params: [voteMessage, address],
+      const signature = await signMessageAsync({
+        message: voteMessage,
       });
 
       // Prepare the vote payload
@@ -213,6 +214,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen p-8 pt-16">
+      <div className="max-w-4xl mx-auto p-6">
+        <appkit-button />
+      </div>
       {/* <div className="max-w-4xl mx-auto p-6"> */}
       {/*   {isConnected ? ( */}
       {/*     <Button */}
