@@ -18,7 +18,7 @@ if (!projectId) {
 
 // Set up metadata
 const metadata = {
-  name: 'vote-danny-ryan',
+  name: 'danny-ryan',
   description: 'Vote Danny Ryan',
   url: 'https://votedannyryan.com', // origin must match your domain & subdomain
   icons: ['https://avatars.githubusercontent.com/u/179229932']
