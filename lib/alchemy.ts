@@ -16,7 +16,7 @@ const networks = [
   { name: "Polygon zkEVM", value: Network.POLYGONZKEVM_MAINNET },
 ];
 
-export const getETHBalanceAllNetworks = async (walletAddress: string) => {
+export const getETHBalanceAllNetworks = async (walletAddress: string): Promise<bigint> => {
   const alchemyInstances = networks.map(({ name, value }) => ({
     name,
     alchemy: new Alchemy({
@@ -36,20 +36,11 @@ export const getETHBalanceAllNetworks = async (walletAddress: string) => {
 
     // Aggregate and display balances
     let totalBalance = BigInt(0);
-
-    console.log(`\nBalances for address: ${walletAddress}\n`);
-    console.log("---------------------------------------------------");
-
     balances.forEach(({ name, balance }) => {
-      console.log(`${name} Balance: ${formatEther(balance)} ETH`);
       totalBalance += balance;
     });
-
-    console.log("---------------------------------------------------");
-    console.log(`\nAggregated Total Balance Across All Chains: ${formatEther(totalBalance)} ETH\n`);
     return totalBalance
   } catch (error) {
-    console.error("An error occurred while fetching balances:", error);
     throw error
   }
 };

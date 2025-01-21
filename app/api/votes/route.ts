@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { verifySignature } from '@/lib/ethereum';
 import { getETHBalanceAllNetworks } from '@/lib/alchemy';
 import { formatEther, parseEther } from 'viem';
@@ -36,10 +36,10 @@ export async function POST(request: Request) {
     }
 
     // 3) Calculate number of votes based on ETH holdings across EVM chains
-    const num_votes = await getETHBalanceAllNetworks(wallet);
+    const num_votes: bigint = await getETHBalanceAllNetworks(wallet);
 
     // 3) Use transaction WITH row-level locking
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // a) Create the vote record
       const vote = await tx.vote.create({
         data: {
@@ -75,9 +75,11 @@ export async function POST(request: Request) {
       `;
 
       // d) Calculate the new totals
-      const newTotalVotes = {
+      const newTotalVotes: { [key: string]: string } = {
+        // eslint-disable-next-line
         ...currentAggregate.total_votes,
         [voteOption]:
+          // eslint-disable-next-line
           formatEther(parseEther(currentAggregate.total_votes[voteOption] || "0") + num_votes),
       };
 
@@ -94,7 +96,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Vote error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

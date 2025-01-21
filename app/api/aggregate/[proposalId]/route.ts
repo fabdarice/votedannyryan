@@ -17,7 +17,6 @@ export async function GET(
 
     return NextResponse.json(aggregate);
   } catch (error) {
-    console.error('Aggregate retrieval error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

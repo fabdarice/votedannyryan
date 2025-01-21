@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -50,7 +56,6 @@ export default function Home() {
           const response = await fetch(`/api/votes/${proposalId}/${address}`);
 
           if (!response.ok) {
-            console.error("Failed to fetch vote status:", response.statusText);
             toast({
               title: "Error fetching user's vote",
               description: response.statusText,
@@ -63,7 +68,6 @@ export default function Home() {
           setUserVote(data["voteOption"]);
           setUserNumVotes(data["numVotes"]);
         } catch (error) {
-          console.error("Error checking user vote:", error);
           toast({
             title: "Error fetching user's vote",
             description: "",
@@ -83,7 +87,6 @@ export default function Home() {
         const response = await fetch(`/api/aggregate/${proposalId}`);
 
         if (!response.ok) {
-          console.error("Failed to fetch vote data:", response.statusText);
           toast({
             title: "Error fetching all votes",
             description: response.statusText,
@@ -110,7 +113,6 @@ export default function Home() {
         });
 
       } catch (error) {
-        console.error("Error fetching vote data:", error);
         toast({
           title: "Error fetching all votes",
           description: "",
@@ -130,7 +132,6 @@ export default function Home() {
         const response = await fetch(`/api/votes/${proposalId}`);
 
         if (!response.ok) {
-          console.error("Failed to fetch recent vote data:", response.statusText);
           toast({
             title: "Error fetching recent votes",
             description: response.statusText,
@@ -144,7 +145,6 @@ export default function Home() {
         setRecentVotes(data.votes);
 
       } catch (error) {
-        console.error("Error fetching vote data:", error);
         toast({
           title: "Error fetching recent votes",
           description: "",
@@ -192,8 +192,6 @@ export default function Home() {
       const result = await response.json();
 
       if (!response.ok) {
-        console.error("Vote failed:", result.error);
-
         toast({
           title: "Error voting",
           description: result.error,
@@ -202,11 +200,9 @@ export default function Home() {
         return;
       }
 
-      console.log("Vote successful:", result);
       setUserVote(vote);
       setShowVoteDialog(true);
     } catch (error) {
-      console.error("Error handling vote:", error);
       toast({
         title: "Error voting",
         description: "",
@@ -317,6 +313,36 @@ export default function Home() {
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="mt-8">
+          <h2 className="text-2xl font-semibold mb-6 text-center">Frequently Asked Questions</h2>
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+              <AccordionTrigger className="text-left">
+                What is the purpose of this vote?
+              </AccordionTrigger>
+              <AccordionContent>
+                This vote is to determine whether Danny Ryan should become the sole Executive Director of the Ethereum Foundation. The community's input through this voting process will help guide this important decision.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-2">
+              <AccordionTrigger className="text-left">
+                How is my vote weighted?
+              </AccordionTrigger>
+              <AccordionContent>
+                Votes are weighted based on the amount of ETH in your connected wallet at the time of voting. This ensures that stakeholders with more investment in the Ethereum ecosystem have proportional influence.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-3">
+              <AccordionTrigger className="text-left">
+                Can I change my vote later?
+              </AccordionTrigger>
+              <AccordionContent>
+                No, votes are final and cannot be changed once submitted. Please carefully consider your decision before voting. Each wallet address can only vote once.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </div>
 

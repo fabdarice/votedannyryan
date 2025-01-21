@@ -19,7 +19,6 @@ export async function GET(
 
     return NextResponse.json({ voteOption: vote?.vote_option, numVotes: vote?.num_votes });
   } catch (error) {
-    console.error('Vote check error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

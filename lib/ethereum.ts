@@ -13,7 +13,6 @@ export async function verifySignature(
     });
     return valid;
   } catch (error) {
-    console.error('Signature verification error:', error);
     return false;
   }
 }
