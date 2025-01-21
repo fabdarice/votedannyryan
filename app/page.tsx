@@ -240,7 +240,7 @@ export default function Home() {
 
         <div className="bg-blue-50 rounded-lg p-6 mb-8 border border-blue-100">
           <blockquote className="text-md text-center italic text-gray-700">
-            "Ethereum's infancy is long past, and its adolescence, too, is now in the rear-view mirror. As a young adult, the world is riddled with complexity, false prophets, complex incentives, dead-ends, and other dangers. Everyone's true-north of what Ethereum should be and where it all should go is a bit different, but in aggregate, each decision that you make sums with all others to direct Ethereum through this critical time. Stay true to the good. Do your part in keeping Ethereum on the serendipitous path that has been cultivated since its genesis."
+            Ethereum&apos;s infancy is long past, and its adolescence, too, is now in the rear-view mirror. As a young adult, the world is riddled with complexity, false prophets, complex incentives, dead-ends, and other dangers. Everyone&apos;s true-north of what Ethereum should be and where it all should go is a bit different, but in aggregate, each decision that you make sums with all others to direct Ethereum through this critical time. Stay true to the good. Do your part in keeping Ethereum on the serendipitous path that has been cultivated since its genesis.
           </blockquote>
           <div className="text-right text-gray-700 pt-4 italic">-- Danny Ryan</div>
         </div>
@@ -348,7 +348,7 @@ export default function Home() {
                 >
                   here</a>.<br />
                 It only requires a wallet signature with the following text:
-                `I vote YES|NO for "Danny Ryan as the sole Executive Director of the Ethereum Foundation".
+                `I vote YES|NO for Danny Ryan as the sole Executive Director of the Ethereum Foundation.
                 Signing this transaction is free and will not cost you any gas.`
               </AccordionContent>
             </AccordionItem>

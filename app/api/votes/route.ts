@@ -75,7 +75,7 @@ export async function POST(request: Request) {
       `;
 
       // d) Calculate the new totals
-      const newTotalVotes: { [key: string]: string } = {
+      const newTotalVotes: Record<string, string> = {
         // eslint-disable-next-line
         ...currentAggregate.total_votes,
         [voteOption]:
