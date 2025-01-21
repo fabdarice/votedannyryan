@@ -13,10 +13,11 @@ export async function GET(
       },
       select: {
         vote_option: true,
+        num_votes: true,
       },
     });
 
-    return NextResponse.json({ hasVoted: !!vote, vote_option: vote?.vote_option });
+    return NextResponse.json({ voteOption: vote?.vote_option, numVotes: vote?.num_votes });
   } catch (error) {
     console.error('Vote check error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

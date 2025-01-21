@@ -21,7 +21,7 @@ export async function GET(
       orderBy: {
         created_at: 'desc',
       },
-      take: 10,
+      take: 5,
     });
 
     const totalVotes = await prisma.vote.count({

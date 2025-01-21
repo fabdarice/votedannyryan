@@ -1,15 +1,14 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { verifySignature } from '@/lib/ethereum';
+import { getETHBalanceAllNetworks } from '@/lib/alchemy';
+import { formatEther, parseEther } from 'viem';
 
 const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
   try {
     const { proposalId, signature, wallet, voteOption } = await request.json();
-
-    // TODO: Get Number of votes across blockchains
-    const num_votes = 1;
 
     const proposal = await prisma.proposal.findUnique({
       where: { id: proposalId },
@@ -29,12 +28,15 @@ export async function POST(request: Request) {
     }
 
     // 2) Verify signature
-    const message = `I vote ${voteOption} for "${proposal.description}"\n\nSigning this transaction is free and will not cost you any gas.`;
+    const message = `I vote ${voteOption} for "${proposal.description}".\n\nSigning this transaction is free and will not cost you any gas.`;
     const isValidSignature = await verifySignature(message, signature, wallet);
 
     if (!isValidSignature) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
+
+    // 3) Calculate number of votes based on ETH holdings across EVM chains
+    const num_votes = await getETHBalanceAllNetworks(wallet);
 
     // 3) Use transaction WITH row-level locking
     const result = await prisma.$transaction(async (tx) => {
@@ -45,8 +47,7 @@ export async function POST(request: Request) {
           wallet,
           signature,
           vote_option: voteOption,
-          chainId: 1,
-          num_votes: num_votes,
+          num_votes: formatEther(num_votes),
         },
       });
 
@@ -60,6 +61,7 @@ export async function POST(request: Request) {
           data: {
             proposal_id: proposalId,
             total_votes: {}, // start empty or some default
+            last_updated_at: new Date(),
           },
         });
       }
@@ -76,7 +78,7 @@ export async function POST(request: Request) {
       const newTotalVotes = {
         ...currentAggregate.total_votes,
         [voteOption]:
-          (currentAggregate.total_votes[voteOption] || 0) + num_votes,
+          formatEther(parseEther(currentAggregate.total_votes[voteOption] || "0") + num_votes),
       };
 
       // e) Update the row now that it's locked

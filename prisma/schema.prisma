@@ -26,8 +26,7 @@ model Vote {
   wallet      String
   signature   String
   vote_option String
-  num_votes   Int
-  chainId     Int
+  num_votes   String
   updated_at  DateTime @default(now())
   created_at  DateTime @default(now())
   proposal    Proposal @relation(fields: [proposal_id], references: [id])
