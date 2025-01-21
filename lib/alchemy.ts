@@ -10,10 +10,8 @@ const networks = [
   { name: "Base Mainnet", value: Network.BASE_MAINNET },
   { name: "Optimism", value: Network.OPT_MAINNET },
   { name: "Arbitrum", value: Network.ARB_MAINNET },
-  { name: "Polygon", value: Network.MATIC_MAINNET },
   { name: "zkSync", value: Network.ZKSYNC_MAINNET },
   { name: "Linea", value: Network.LINEA_MAINNET },
-  { name: "Polygon zkEVM", value: Network.POLYGONZKEVM_MAINNET },
 ];
 
 export const getETHBalanceAllNetworks = async (walletAddress: string): Promise<bigint> => {
