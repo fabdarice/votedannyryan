@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { injected } from "wagmi/connectors";
 import { formatEther, parseEther } from "viem";
 import { timeAgo } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 require('dotenv').config();
 
@@ -27,6 +28,8 @@ export default function Home() {
   const { address, isConnected } = useAccount();
   const { connect } = useConnect();
   const { disconnect } = useDisconnect();
+  const { toast } = useToast();
+
 
   const [voteData, setVoteData] = useState({
     yesVotes: 0,
@@ -48,6 +51,11 @@ export default function Home() {
 
           if (!response.ok) {
             console.error("Failed to fetch vote status:", response.statusText);
+            toast({
+              title: "Error fetching user's vote",
+              description: response.statusText,
+              variant: "destructive"
+            })
             return;
           }
 
@@ -56,6 +64,11 @@ export default function Home() {
           setUserNumVotes(data["numVotes"]);
         } catch (error) {
           console.error("Error checking user vote:", error);
+          toast({
+            title: "Error fetching user's vote",
+            description: "",
+            variant: "destructive"
+          })
         }
       }
     };
@@ -71,6 +84,11 @@ export default function Home() {
 
         if (!response.ok) {
           console.error("Failed to fetch vote data:", response.statusText);
+          toast({
+            title: "Error fetching all votes",
+            description: response.statusText,
+            variant: "destructive"
+          })
           return;
         }
 
@@ -93,6 +111,11 @@ export default function Home() {
 
       } catch (error) {
         console.error("Error fetching vote data:", error);
+        toast({
+          title: "Error fetching all votes",
+          description: "",
+          variant: "destructive"
+        })
       }
     };
 
@@ -107,7 +130,12 @@ export default function Home() {
         const response = await fetch(`/api/votes/${proposalId}`);
 
         if (!response.ok) {
-          console.error("Failed to fetch vote data:", response.statusText);
+          console.error("Failed to fetch recent vote data:", response.statusText);
+          toast({
+            title: "Error fetching recent votes",
+            description: response.statusText,
+            variant: "destructive"
+          })
           return;
         }
 
@@ -117,6 +145,11 @@ export default function Home() {
 
       } catch (error) {
         console.error("Error fetching vote data:", error);
+        toast({
+          title: "Error fetching recent votes",
+          description: "",
+          variant: "destructive"
+        })
       }
     };
 
@@ -160,7 +193,12 @@ export default function Home() {
 
       if (!response.ok) {
         console.error("Vote failed:", result.error);
-        alert(`Vote failed: ${result.error}`);
+
+        toast({
+          title: "Error voting",
+          description: result.error,
+          variant: "destructive"
+        })
         return;
       }
 
@@ -169,7 +207,11 @@ export default function Home() {
       setShowVoteDialog(true);
     } catch (error) {
       console.error("Error handling vote:", error);
-      alert("An error occurred while voting. Please try again.");
+      toast({
+        title: "Error voting",
+        description: "",
+        variant: "destructive"
+      })
     }
   };
 
