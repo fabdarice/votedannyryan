@@ -1,5 +1,5 @@
-import { Alchemy, GetOwnersForContractWithTokenBalancesResponse, Network } from "alchemy-sdk";
-import { formatEther, parseEther, parseUnits } from "viem";
+import { Alchemy, Network } from "alchemy-sdk";
+import { getValidatorBalance } from "./beaconchain";
 
 const config = {
   apiKey: process.env.ALCHEMY_SECRET_KEY,
@@ -76,7 +76,10 @@ export const getETHBalanceAllNetworks = async (walletAddress: string): Promise<b
     balances.forEach(({ name, balance }) => {
       totalBalance += balance;
     });
-    return totalBalance
+
+    const validatorBalance = await getValidatorBalance(walletAddress);
+
+    return (totalBalance + validatorBalance);
   } catch (error) {
     console.error("getETHBalanceAllNetworks error", error);
     throw error
