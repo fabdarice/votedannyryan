@@ -350,7 +350,7 @@ export default function Home() {
                 How is my vote weighted?
               </AccordionTrigger>
               <AccordionContent>
-                Votes are weighted based on the amount of ETH and ETH derivates in your connected wallet at the time of voting. The following blockchains are supported: $ETH (Ethereum, Base, Optimism, Arbitrum, zkSync, Linea), WETH (L1), rETH (L1), stETH (L1). This ensures that stakeholders with greater investments in the Ethereum ecosystem have a proportional influence on the outcome.
+                Votes are weighted based on the amount of ETH, ETH staked (beaconchain), ETH derivates in your connected wallet at the time of voting. The following blockchains are supported: $ETH (Ethereum, Base, Optimism, Arbitrum, zkSync, Linea), WETH (L1), rETH (L1), stETH (L1). This ensures that stakeholders with greater investments in the Ethereum ecosystem have a proportional influence on the outcome.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-3">
