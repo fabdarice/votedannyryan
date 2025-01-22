@@ -44,6 +44,6 @@ export const truncateAddress = (address: string, chars: number = 6): string => {
 };
 
 // Define a sleep function that returns a Promise
-export function sleep(ms) {
+export function sleep(ms: int) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
