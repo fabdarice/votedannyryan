@@ -44,6 +44,15 @@ export const truncateAddress = (address: string, chars: number = 6): string => {
 };
 
 // Define a sleep function that returns a Promise
-export function sleep(ms: int) {
+export function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export function formatUSD(amount: number): string {
+  const amountTrunc: number = Math.floor(amount); // For positive numbers
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0, currency: "USD",
+  }).format(amountTrunc);
 }

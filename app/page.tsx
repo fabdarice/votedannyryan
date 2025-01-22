@@ -13,7 +13,7 @@ import { useAccount } from "wagmi";
 import { Github, Twitter, ThumbsUp, ThumbsDown, Share2, Feather as Ethereum, Wallet } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatEther, parseEther } from "viem";
-import { timeAgo, truncateAddress } from "@/lib/utils";
+import { formatUSD, timeAgo, truncateAddress } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useSignMessage } from "wagmi";
 import { useAppKit } from "@reown/appkit/react";
@@ -44,6 +44,7 @@ export default function Home() {
     totalVotes: 0,
     yesPercentage: 0,
     noPercentage: 0,
+    totalVoteUSD: 0,
   });
 
   const [recentVotes, setRecentVotes] = useState<Vote[]>([]);
@@ -96,7 +97,7 @@ export default function Home() {
           return;
         }
 
-        const aggregate = await response.json();
+        const { aggregate, totalVoteUSD } = await response.json();
         const yesVotesBig = parseEther(aggregate.total_votes.YES || "0");
         const noVotesBig = parseEther(aggregate.total_votes.NO || "0");
         const yesVotes = parseFloat(formatEther(yesVotesBig));
@@ -111,6 +112,7 @@ export default function Home() {
           totalVotes,
           yesPercentage,
           noPercentage,
+          totalVoteUSD,
         });
 
       } catch (error) {
@@ -241,7 +243,7 @@ export default function Home() {
         <div className="mb-8">
           <div className="flex justify-between mb-2">
             <span className="font-semibold">Vote Distribution</span>
-            <span className="text-gray-600 font-semibold">{voteData.totalVotes.toFixed(2)} ETH Total</span>
+            <span className="text-gray-600 font-semibold">{voteData.totalVotes.toFixed(2)} ETH ({formatUSD(voteData.totalVoteUSD)})</span>
           </div>
           <Progress
             value={voteData.yesPercentage}

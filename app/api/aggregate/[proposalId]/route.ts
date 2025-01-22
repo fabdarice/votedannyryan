@@ -1,5 +1,7 @@
+import { getEthPrice } from "@/lib/ethereum";
 import { prisma } from "@/prisma/prisma";
 import { NextResponse } from "next/server";
+import { formatEther } from "viem";
 
 // app/api/aggregate/[proposalId]/route.ts
 export async function GET(
@@ -16,7 +18,13 @@ export async function GET(
       return NextResponse.json({ error: 'No votes found' }, { status: 404 });
     }
 
-    return NextResponse.json(aggregate);
+    let ethPrice: number = await getEthPrice();
+    const totalVoteUSD = aggregate.total_votes
+      // @ts-ignore
+      ? (Number(aggregate.total_votes["YES"] || "0") + Number(aggregate.total_votes["NO"] || "0")) * ethPrice
+      : 0;
+
+    return NextResponse.json({ aggregate, totalVoteUSD });
   } catch (error) {
     console.error('Could not fetch aggregated votes: ', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

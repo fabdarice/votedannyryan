@@ -85,3 +85,4 @@ export const getETHBalanceAllNetworks = async (walletAddress: string): Promise<b
     throw error
   }
 };
+
