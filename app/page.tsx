@@ -35,8 +35,7 @@ export default function Home() {
   const { toast } = useToast();
   const { signMessageAsync } = useSignMessage();
   const { open } = useAppKit();
-
-
+  const [isLoading, setIsLoading] = useState(false);
 
   const [voteData, setVoteData] = useState({
     yesVotes: 0,
@@ -166,6 +165,8 @@ export default function Home() {
     }
 
     try {
+
+      setIsLoading(true);
       const proposalId = process.env.NEXT_PUBLIC_PROPOSAL_ID;
       const voteMessage = `I vote ${vote} for "Danny Ryan as the sole Executive Director of the Ethereum Foundation".\n\nSigning this transaction is free and will not cost you any gas.`;
 
@@ -209,6 +210,8 @@ export default function Home() {
         description: "",
         variant: "destructive"
       })
+    } finally {
+      setIsLoading(false);
     }
   };
   const handleShareTwitter = () => {
@@ -276,6 +279,7 @@ export default function Home() {
             <Button
               onClick={() => handleVote("YES")}
               className="group relative flex items-center overflow-hidden bg-white hover:bg-gray-50 text-gray-800 px-10 py-6 text-lg rounded-2xl shadow-lg transition-all duration-300 border-2 border-gray-200 hover:border-gray-300"
+              disabled={isLoading}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-gray-100/20 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
               <ThumbsUp className="mr-3 h-5 w-5" />
@@ -284,6 +288,7 @@ export default function Home() {
             <Button
               onClick={() => handleVote("NO")}
               className="group relative flex items-center overflow-hidden bg-white hover:bg-gray-50 text-gray-800 px-10 py-6 text-lg rounded-2xl shadow-lg transition-all duration-300 border-2 border-gray-200 hover:border-gray-300"
+              disabled={isLoading}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-gray-100/20 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
               <ThumbsDown className="mr-3 h-5 w-5" />
@@ -352,7 +357,7 @@ export default function Home() {
                 How is my vote weighted?
               </AccordionTrigger>
               <AccordionContent>
-                Votes are weighted based on the amount of ETH, ETH staked (beaconchain), ETH derivates in your connected wallet at the time of voting. The following blockchains are supported: $ETH (Ethereum, Base, Optimism, Arbitrum, zkSync, Linea), WETH (L1), rETH (L1), stETH (L1). This ensures that stakeholders with greater investments in the Ethereum ecosystem have a proportional influence on the outcome.
+                Votes are weighted based on the amount of ETH, ETH staked (beaconchain), ETH derivates in your connected wallet at the time of voting. The following blockchains are supported: $ETH (Ethereum, Base, Optimism, Arbitrum, zkSync, Linea), WETH (L1, Base, Optimism, Arbitrum), rETH (L1), stETH (L1, Base, Arbitrum, Optimism), Aave ETH (L1), Aave stETH (L1), Aave eETH (L1). This ensures that stakeholders with greater investments in the Ethereum ecosystem have a proportional influence on the outcome.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-3">
