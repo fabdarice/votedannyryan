@@ -9,30 +9,26 @@ async function main() {
     process.exit(1);
   }
 
-  const response = await fetch(`${BASE_URL}/api/admin/proposals`, {
+  const response = await fetch(`${BASE_URL}/api/admin/votes/update`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'x-admin-key': adminKey,
     },
-    body: JSON.stringify({
-      description: 'Danny Ryan as the sole Executive Director of the Ethereum Foundation',
-      options: ['Yes', 'No'],
-    }),
   });
 
   if (!response.ok) {
-    console.error('Seeding failed:', response.status, response.statusText);
+    console.error('Update failed:', response.status, response.statusText);
     const errorBody = await response.json().catch(() => null);
     console.error('Body:', errorBody);
     process.exit(1);
   }
 
-  const proposal = await response.json();
-  console.log('Seed successful! Created proposal:', proposal);
+  await response.json();
+  console.log("Update for all balances!");
 }
 
 main().catch((err) => {
-  console.error('Error seeding data:', err);
+  console.error('Error fetching updates balances:', err);
   process.exit(1);
 });

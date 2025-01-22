@@ -42,3 +42,8 @@ export const truncateAddress = (address: string, chars: number = 6): string => {
   if (address.length <= chars * 2 + 2) return address;
   return `${address.substring(0, chars)}...${address.substring(address.length - chars)}`;
 };
+
+// Define a sleep function that returns a Promise
+export function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

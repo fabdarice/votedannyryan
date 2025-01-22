@@ -7,7 +7,8 @@
     "build": "prisma migrate deploy && prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "ts-node scripts/seed.ts"
+    "seed": "ts-node scripts/seed.ts",
+    "update": "ts-node scripts/updateVotes.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
