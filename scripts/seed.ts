@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-async function main() {
+async function mainSeed() {
   const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
   const adminKey = process.env.ADMIN_SECRET_KEY;
@@ -32,7 +32,7 @@ async function main() {
   console.log('Seed successful! Created proposal:', proposal);
 }
 
-main().catch((err) => {
+mainSeed().catch((err) => {
   console.error('Error seeding data:', err);
   process.exit(1);
 });
