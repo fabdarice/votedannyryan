@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient, Prisma } from '@prisma/client';
-import { verifySignature } from '@/lib/ethereum';
+import { verifySafeSignature, verifySignature } from '@/lib/ethereum';
 import { getETHBalanceAllNetworks } from '@/lib/alchemy';
 import { formatEther, parseEther } from 'viem';
 
@@ -32,8 +32,9 @@ export async function POST(request: Request) {
     // 2) Verify signature
     const message = `I vote ${voteOption} for "${proposal.description}".\n\nSigning this transaction is free and will not cost you any gas.`;
     const isValidSignature = await verifySignature(message, signature, wallet);
+    const isValidSignatureSafe = await verifySafeSignature(message, signature, wallet);
 
-    if (!isValidSignature) {
+    if (!isValidSignature && !isValidSignatureSafe) {
       console.error('Invalid Signature');
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }

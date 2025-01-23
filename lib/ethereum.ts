@@ -1,5 +1,5 @@
 import { verifyMessage } from 'viem';
-import { createPublicClient, http } from 'viem';
+import { createPublicClient, encodeAbiParameters, keccak256, http } from 'viem';
 import { formatUnits } from 'viem';
 import { mainnet } from 'viem/chains';
 
@@ -16,6 +16,57 @@ export async function verifySignature(
     });
     return valid;
   } catch (error) {
+    return false;
+  }
+}
+
+const gnosisSafeAbi = [
+  {
+    constant: true,
+    inputs: [
+      { name: 'hash', type: 'bytes32' },
+      { name: 'signature', type: 'bytes' },
+    ],
+    name: 'isValidSignature',
+    outputs: [{ name: 'magicValue', type: 'bytes4' }],
+    type: 'function',
+  },
+];
+
+const MAGIC_VALUE = '0x1626ba7e'; // EIP-1271 magic value for valid signatures
+
+export async function verifySafeSignature(
+  message: string,
+  signature: string,
+  wallet: `0x${string}`
+): Promise<boolean> {
+  try {
+    // Create a viem client
+    const client = createPublicClient({
+      chain: mainnet,
+      transport: http(),
+    });
+
+    // Hash the message to match the EIP-191 standard
+    const messageHash = keccak256(
+      encodeAbiParameters(
+        [{ type: 'string', name: 'message' }],
+        [message]
+      )
+    );
+
+    // Call the isValidSignature method on the Gnosis Safe
+    const magicValue = await client.readContract({
+      address: wallet,
+      abi: gnosisSafeAbi,
+      functionName: 'isValidSignature',
+      args: [messageHash, signature],
+    });
+
+    // Return true if the magic value matches the expected value
+    return magicValue === MAGIC_VALUE;
+  } catch (error) {
+    console.error('Error verifying signature:', error);
     return false;
   }
 }
