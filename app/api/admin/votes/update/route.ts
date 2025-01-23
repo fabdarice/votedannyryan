@@ -11,82 +11,78 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   try {
-    const votes: Vote[] = await prisma.vote.findMany({
+    const vote: Vote | null = await prisma.vote.findFirst({
       orderBy: {
         updated_at: 'asc',
       },
-      take: 5,
     });
 
-    if (votes.length === 0) {
-      return NextResponse.json({ message: 'No votes to update.' }, { status: 200 });
+    if (vote === null) {
+      return NextResponse.json({ message: 'Votes updated successfully.' }, { status: 200 });
     }
 
-    for (const vote of votes) {
-      const { id, wallet, num_votes, proposal_id, vote_option } = vote;
+    const { id, wallet, num_votes, proposal_id, vote_option } = vote;
 
-      const newNumVotes: bigint = await getETHBalanceAllNetworks(wallet);
-      const previousNumVotes = parseEther(num_votes); // Convert string to bigint
-      const diff = newNumVotes - previousNumVotes;
+    const newNumVotes: bigint = await getETHBalanceAllNetworks(wallet);
+    const previousNumVotes = parseEther(num_votes); // Convert string to bigint
+    const diff = newNumVotes - previousNumVotes;
 
-      if ((diff >= parseEther('0') && diff < parseEther("0.001")) || (diff < parseEther('0') && diff > parseEther("-0.001"))) {
-        continue;
+    if ((diff >= parseEther('0') && diff < parseEther("0.001")) || (diff < parseEther('0') && diff > parseEther("-0.001"))) {
+      return NextResponse.json({ message: 'Votes updated successfully.' }, { status: 200 });
+    }
+
+    console.log(`Updating Balance for ${vote.wallet} for diff: ${formatEther(diff)} | new: ${formatEther(newNumVotes)} | old: ${num_votes}`);
+
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      await tx.vote.update({
+        where: { id },
+        data: {
+          num_votes: formatEther(newNumVotes), // Store as string
+          updated_at: new Date(), // Update the timestamp
+        },
+      });
+
+      let aggregateVote: AggregateVote | null = await tx.aggregateVote.findUnique({
+        where: { proposal_id },
+      });
+
+      if (!aggregateVote) {
+        console.error('[Update] Aggregate vote not found for proposal:', proposal_id);
+        return;
       }
 
-      console.log(`Updating Balance for ${vote.wallet} for diff: ${formatEther(diff)} | new: ${formatEther(newNumVotes)} | old: ${num_votes}`);
-
-      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        await tx.vote.update({
-          where: { id },
-          data: {
-            num_votes: formatEther(newNumVotes), // Store as string
-            updated_at: new Date(), // Update the timestamp
-          },
-        });
-
-        let aggregateVote: AggregateVote | null = await tx.aggregateVote.findUnique({
-          where: { proposal_id },
-        });
-
-        if (!aggregateVote) {
-          console.error('[Update] Aggregate vote not found for proposal:', proposal_id);
-          return;
-        }
-
-        // Lock the row to prevent race conditions
-        await tx.$queryRaw`
+      // Lock the row to prevent race conditions
+      await tx.$queryRaw`
           SELECT id FROM "aggregate_votes"
           WHERE "id" = ${aggregateVote.id}
           FOR UPDATE
         `;
 
-        const currentTotalVotes = aggregateVote.total_votes as Record<string, string>;
-        const voteOption = vote_option.toUpperCase();
+      const currentTotalVotes = aggregateVote.total_votes as Record<string, string>;
+      const voteOption = vote_option.toUpperCase();
 
-        const existingVotes = currentTotalVotes[voteOption]
-          ? parseEther(currentTotalVotes[voteOption])
-          : BigInt(0);
+      const existingVotes = currentTotalVotes[voteOption]
+        ? parseEther(currentTotalVotes[voteOption])
+        : BigInt(0);
 
-        // Calculate the new total
-        const updatedVotes = existingVotes + diff;
+      // Calculate the new total
+      const updatedVotes = existingVotes + diff;
 
-        // Update the total_votes object
-        const newTotalVotes = {
-          ...currentTotalVotes,
-          [voteOption]: formatEther(updatedVotes),
-        };
+      // Update the total_votes object
+      const newTotalVotes = {
+        ...currentTotalVotes,
+        [voteOption]: formatEther(updatedVotes),
+      };
 
-        // **iv. Update the `aggregate_votes` Row**
-        await tx.aggregateVote.update({
-          where: { id: aggregateVote.id },
-          data: {
-            total_votes: newTotalVotes,
-            last_updated_at: new Date(),
-          },
-        });
+      // **iv. Update the `aggregate_votes` Row**
+      await tx.aggregateVote.update({
+        where: { id: aggregateVote.id },
+        data: {
+          total_votes: newTotalVotes,
+          last_updated_at: new Date(),
+        },
       });
-
-    }
+    });
 
     return NextResponse.json({ message: 'Votes updated successfully.' }, { status: 200 });
   } catch (error) {
