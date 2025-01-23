@@ -33,6 +33,8 @@ export async function POST(request: NextRequest) {
         continue;
       }
 
+      console.log(`Updating Balance for ${vote.wallet} for diff: ${formatEther(diff)} | new: ${formatEther(newNumVotes)} | old: ${num_votes}`);
+
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         await tx.vote.update({
           where: { id },
