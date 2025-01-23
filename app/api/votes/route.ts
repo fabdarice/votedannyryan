@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     // 2) Verify signature
     const message = `I vote ${voteOption} for "${proposal.description}".\n\nSigning this transaction is free and will not cost you any gas.`;
     const isValidSignature = await verifySignature(message, signature, wallet);
-    const isValidSignatureSafe = await verifySafeSignature(message, signature, wallet);
+    const isValidSignatureSafe = isValidSignature || (await verifySafeSignature(message, signature, wallet));
 
     if (!isValidSignature && !isValidSignatureSafe) {
       console.error('Invalid Signature');
