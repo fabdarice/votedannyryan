@@ -1,6 +1,9 @@
-import { sleep } from "@/lib/utils";
-
 require('dotenv').config();
+
+// Define a sleep function that returns a Promise
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 async function sendUpdateRequest(BASE_URL: string, adminKey: string): Promise<void> {
   try {

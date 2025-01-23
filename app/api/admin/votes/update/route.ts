@@ -27,11 +27,9 @@ export async function POST(request: NextRequest) {
     const previousNumVotes = parseEther(num_votes); // Convert string to bigint
     const diff = newNumVotes - previousNumVotes;
 
-    if ((diff >= parseEther('0') && diff < parseEther("0.001")) || (diff < parseEther('0') && diff > parseEther("-0.001"))) {
-      return NextResponse.json({ message: 'Votes updated successfully.' }, { status: 200 });
+    if (diff > parseEther("1") || diff < parseEther("-1")) {
+      console.warn(`Updating Balance for ${vote.wallet} for diff: ${formatEther(diff)} | new: ${formatEther(newNumVotes)} | old: ${num_votes}`);
     }
-
-    console.log(`Updating Balance for ${vote.wallet} for diff: ${formatEther(diff)} | new: ${formatEther(newNumVotes)} | old: ${num_votes}`);
 
     await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       await tx.vote.update({
