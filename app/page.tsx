@@ -285,11 +285,17 @@ export default function Home() {
             <div className="flex justify-between text-sm mt-4">
               <div className="flex items-center">
                 <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-                <div>Yes: {formatNumberWithCommas(voteData.yesVotes)} ETH</div>
+                <div>
+                  <div>Yes: {formatNumberWithCommas(voteData.yesVotes)} ETH</div>
+                  <div className="text-gray-500">{voteData.yesPercentage.toFixed(2)}%</div>
+                </div>
               </div>
               <div className="flex items-center">
                 <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
-                <div>No: {formatNumberWithCommas(voteData.noVotes)} ETH</div>
+                <div>
+                  <div>No: {formatNumberWithCommas(voteData.noVotes)} ETH</div>
+                  <div className="text-gray-500">{voteData.noPercentage.toFixed(2)}%</div>
+                </div>
               </div>
             </div>
           </div>
