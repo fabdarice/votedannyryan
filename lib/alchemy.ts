@@ -83,7 +83,7 @@ export const getETHBalanceAllNetworks = async (walletAddress: string): Promise<b
               tokenBalancesBigInt += BigInt(token.tokenBalance);
             }
           });
-          await sleep(100);
+          await sleep(150);
         }
 
         // Total ETH-equivalent balance for this network
