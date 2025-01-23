@@ -258,7 +258,7 @@ export default function Home() {
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold">Vote Distribution</h3>
               <div className="text-right">
-                <div className="text-sm text-gray-600">Total Value</div>
+                <div className="text-sm text-gray-600">Total Votes</div>
                 <div className="font-medium">{formatNumberWithCommas(voteData.totalVotes)} ETH</div>
                 <div className="text-sm text-gray-500">{formatUSD(voteData.totalVoteUSD)}</div>
               </div>
@@ -286,15 +286,15 @@ export default function Home() {
               <div className="flex items-center">
                 <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
                 <div>
-                  <div>Yes: {formatNumberWithCommas(voteData.yesVotes)} ETH</div>
-                  <div className="text-gray-500">{voteData.yesPercentage.toFixed(2)}%</div>
+                  <div>Yes: {voteData.yesPercentage.toFixed(2)}%</div>
+                  <div className="text-gray-600">{formatNumberWithCommas(voteData.yesVotes)} ETH</div>
                 </div>
               </div>
               <div className="flex items-center">
                 <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
                 <div>
-                  <div>No: {formatNumberWithCommas(voteData.noVotes)} ETH</div>
-                  <div className="text-gray-500">{voteData.noPercentage.toFixed(2)}%</div>
+                  <div>No: {voteData.noPercentage.toFixed(2)}%</div>
+                  <div className="text-gray-600">{formatNumberWithCommas(voteData.noVotes)} ETH</div>
                 </div>
               </div>
             </div>
