@@ -1,5 +1,4 @@
 import { getETHBalanceAllNetworks } from "@/lib/alchemy";
-import { sleep } from "@/lib/utils";
 import { prisma } from "@/prisma/prisma";
 import { AggregateVote, Prisma, Vote } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
@@ -83,7 +82,6 @@ export async function POST(request: NextRequest) {
             last_updated_at: new Date(),
           },
         });
-        await sleep(200);
       });
 
     }
