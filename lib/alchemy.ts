@@ -1,5 +1,6 @@
 import { Alchemy, Network } from "alchemy-sdk";
 import { getValidatorBalance } from "./beaconchain";
+import { sleep } from "./utils";
 
 const config = {
   apiKey: process.env.ALCHEMY_SECRET_KEY,
@@ -82,6 +83,7 @@ export const getETHBalanceAllNetworks = async (walletAddress: string): Promise<b
               tokenBalancesBigInt += BigInt(token.tokenBalance);
             }
           });
+          await sleep(100);
         }
 
         // Total ETH-equivalent balance for this network

@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       orderBy: {
         updated_at: 'asc',
       },
-      take: 20,
+      take: 10,
     });
 
     if (votes.length === 0) {
