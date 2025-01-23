@@ -56,3 +56,48 @@ export function formatUSD(amount: number): string {
     maximumFractionDigits: 0, currency: "USD",
   }).format(amountTrunc);
 }
+
+
+export function formatNumberWithCommas(num: number | string): string {
+  // Convert the input to a string if it's a number
+  let numStr = typeof num === 'number' ? num.toString() : num.trim();
+
+  // Handle multiple decimal points by keeping only the first one
+  const firstDecimalIndex = numStr.indexOf('.');
+  if (firstDecimalIndex !== -1) {
+    // Remove any additional decimal points
+    numStr =
+      numStr.slice(0, firstDecimalIndex + 1) +
+      numStr.slice(firstDecimalIndex + 1).replace(/\./g, '');
+  }
+
+  // Split the number into integer and decimal parts
+  let [integerPart, decimalPart] = numStr.split('.');
+
+  // Handle numbers starting with a decimal point (e.g., ".1234")
+  if (integerPart === '') {
+    integerPart = '0';
+  }
+
+  // Handle negative numbers
+  const isNegative = integerPart.startsWith('-');
+  if (isNegative) {
+    integerPart = integerPart.slice(1);
+  }
+
+  // Regular expression to add commas every three digits from the end
+  const integerWithCommas = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  // Re-add the negative sign if necessary
+  const formattedInteger = isNegative ? `-${integerWithCommas}` : integerWithCommas;
+
+  // If there's a decimal part, format it to have at most two decimals
+  if (decimalPart) {
+    // Truncate to two decimal places without rounding
+    decimalPart = decimalPart.slice(0, 2);
+    return `${formattedInteger}.${decimalPart}`;
+  }
+
+  // If there's no decimal part, return the integer part
+  return formattedInteger;
+}

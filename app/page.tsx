@@ -10,13 +10,14 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useAccount } from "wagmi";
-import { Github, Twitter, ThumbsUp, ThumbsDown, Share2, Feather as Ethereum, Wallet } from "lucide-react";
+import { Github, Twitter, ThumbsUp, ThumbsDown, Share2, Feather as Ethereum, Wallet, Users } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatEther, parseEther } from "viem";
-import { formatUSD, timeAgo, truncateAddress } from "@/lib/utils";
+import { formatNumberWithCommas, formatUSD, timeAgo, truncateAddress } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useSignMessage } from "wagmi";
 import { useAppKit } from "@reown/appkit/react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 
 interface Vote {
@@ -30,6 +31,8 @@ export default function Home() {
   const [showVoteDialog, setShowVoteDialog] = useState(false);
   const [userVote, setUserVote] = useState<"YES" | "NO" | null>(null);
   const [userNumVotes, setUserNumVotes] = useState(null);
+  const [yesVoters, setYesVoters] = useState(0);
+  const [noVoters, setNoVoters] = useState(0);
 
   const { address, isConnected } = useAccount();
   const { toast } = useToast();
@@ -47,7 +50,12 @@ export default function Home() {
   });
 
   const [recentVotes, setRecentVotes] = useState<Vote[]>([]);
-  const [totalVotes, setTotalVotes] = useState(0);
+  const [totalVoters, setTotalVoters] = useState(0);
+
+  const pieData = [
+    { name: 'Yes Votes', value: voteData.yesVotes, color: '#22c55e' },
+    { name: 'No Votes', value: voteData.noVotes, color: '#ef4444' },
+  ];
 
   useEffect(() => {
     const fetchUserVote = async () => {
@@ -143,7 +151,9 @@ export default function Home() {
         }
 
         const data = await response.json();
-        setTotalVotes(data.totalVotes);
+        setTotalVoters(data.totalVoters);
+        setYesVoters(data.yesVoters);
+        setNoVoters(data.noVoters);
         setRecentVotes(data.votes);
 
       } catch (error) {
@@ -243,24 +253,78 @@ export default function Home() {
           <div className="text-right text-gray-700 pt-4 italic">-- Danny Ryan</div>
         </div>
 
-        <div className="mb-8">
-          <div className="flex justify-between mb-2">
-            <span className="font-semibold">Vote Distribution</span>
-            <span className="text-gray-600 font-semibold">{voteData.totalVotes.toFixed(2)} ETH ({formatUSD(voteData.totalVoteUSD)})</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">Vote Distribution</h3>
+              <div className="text-right">
+                <div className="text-sm text-gray-600">Total Value</div>
+                <div className="font-medium">{formatNumberWithCommas(voteData.totalVotes)} ETH</div>
+                <div className="text-sm text-gray-500">{formatUSD(voteData.totalVoteUSD)}</div>
+              </div>
+            </div>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="flex justify-between text-sm mt-4">
+              <div className="flex items-center">
+                <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                <div>Yes: {formatNumberWithCommas(voteData.yesVotes)} ETH</div>
+              </div>
+              <div className="flex items-center">
+                <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+                <div>No: {formatNumberWithCommas(voteData.noVotes)} ETH</div>
+              </div>
+            </div>
           </div>
-          <Progress
-            value={voteData.yesPercentage}
-            className="h-6 mb-2 rounded-full overflow-hidden"
-            indicatorStyles={`transition-all duration-500 ${voteData.yesPercentage > 50
-              ? 'bg-gradient-to-r from-green-400 to-green-500'
-              : 'bg-gradient-to-r from-red-400 to-red-500'
-              }`}
-          />
-          <div className="flex justify-between text-sm">
-            <span>Yes: {voteData.yesVotes.toFixed(2)} ETH ({voteData.yesPercentage.toFixed(2)}%)</span>
-            <span>No: {voteData.noVotes.toFixed(2)} ETH ({(100 - voteData.yesPercentage).toFixed(2)}%)</span>
+
+          <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <h3 className="text-lg font-semibold mb-4">Voter Participation</h3>
+            <div className="space-y-6">
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <Users className="h-6 w-6 text-blue-500 mr-2" />
+                  <span className="text-2xl font-bold">{totalVoters}</span>
+                </div>
+                <p className="text-gray-600">Total Voters</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-50 rounded-lg p-4 text-center">
+                  <div className="text-xl font-semibold text-green-500">{yesVoters}</div>
+                  <div className="text-sm text-gray-600">Yes Voters</div>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4 text-center">
+                  <div className="text-xl font-semibold text-red-500">{noVoters}</div>
+                  <div className="text-sm text-gray-600">No Voters</div>
+                </div>
+              </div>
+              <Progress
+                value={voteData.yesPercentage}
+                className="h-2 rounded-full"
+              />
+              <div className="text-sm text-gray-600 text-center">
+                {((yesVoters / totalVoters) * 100).toFixed(2)}% Yes Voters
+              </div>
+            </div>
           </div>
         </div>
+
 
         {userVote ? (
           <div className="rounded-lg text-center gap-4 pb-6">
@@ -299,8 +363,7 @@ export default function Home() {
 
         <div className="bg-blue-50 rounded-lg p-6 border border-blue-100">
           <h2 className="text-xl font-semibold mb-4">
-            Recent Votes{' '}
-            <span className="text-sm pl-2 text-gray-600">(Total: {totalVotes})</span>
+            Recent Votes
           </h2>
           <div className="space-y-4">
             {recentVotes.map((vote, index) => (
