@@ -1,5 +1,6 @@
 import { verifyMessage } from 'viem';
 import { createPublicClient, encodeAbiParameters, keccak256, http } from 'viem';
+import { stringToBytes, concat } from 'viem/utils';
 import { formatUnits } from 'viem';
 import { mainnet } from 'viem/chains';
 
@@ -47,20 +48,18 @@ export async function verifySafeSignature(
       transport: http(),
     });
 
-    // Hash the message to match the EIP-191 standard
-    const messageHash = keccak256(
-      encodeAbiParameters(
-        [{ type: 'string', name: 'message' }],
-        [message]
-      )
-    );
+    const prefix = `\x19Ethereum Signed Message:\n${message.length}`;
+    const payloadBytes = concat([stringToBytes(prefix), stringToBytes(message)]);
+
+    // 3. Compute keccak256 hash of the prefixed message
+    const dataHash = keccak256(payloadBytes);
 
     // Call the isValidSignature method on the Gnosis Safe
     const magicValue = await client.readContract({
       address: wallet,
       abi: gnosisSafeAbi,
       functionName: 'isValidSignature',
-      args: [messageHash, signature],
+      args: [dataHash, signature],
     });
 
     // Return true if the magic value matches the expected value
